@@ -2,8 +2,13 @@
 
  private  var screenPoint:Vector3 ;
  private  var offset:Vector3;
+ var PinSet : Transform[] = new Transform[9];
+ private var flag;
+ private var turnChecker : int;
 
 function Start () {
+	flag = false;
+	turnChecker = 0;
 
 }
 
@@ -12,9 +17,24 @@ function Update () {
 }
 function FixedUpdate()
 {
-//		if(Input.GetKeyDown(KeyCode.UpArrow))
+		if(flag && rigidbody.velocity.z < 1)
+		{
+			
+				transform.position = new Vector3(0,1,-9.25);
+				rigidbody.velocity = Vector3.zero;
+				rigidbody.angularVelocity = Vector3.zero;
+				flag = false;
+		}
+//		if(turnChecker == 1)
 //		{
-//			this.gameObject.transform.position.z += 1;
+//		
+//			for(var i = 0; i<10;i++)
+//			{
+//				if(PinSet[i].transform.Rotate)
+//			
+//			}
+//		
+//		
 //		}
 }
 //
@@ -40,12 +60,15 @@ function  OnMouseDown() {
 //     Debug.Log(curPosition);
      transform.position = curPosition;
      rigidbody.AddForce(Vector3.forward * 12);
+     
  }
  
  function OnMouseUp()
  {
  
+ 		flag = true;
  		
+ 		turnChecker++;
  
  
  }

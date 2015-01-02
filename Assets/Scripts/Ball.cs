@@ -7,21 +7,24 @@ public class Ball : MonoBehaviour {
 
 	private  Vector3 screenPoint ;
 	private  Vector3 offset;
-	public Transform[] PinSet = new Transform[9];
-	private bool flag;
+	public   Transform[] PinSet = new Transform[10];
+	private Vector3[] PinPosition = new Vector3[10];
+	private Quaternion[]  PinRotation = new Quaternion[10];
 	private int turnChecker;
-
 	private Vector3 defaultPosition;
-
 	private Vector3 LastPinDefaultPosition;
 
 	// Use this for initialization
 	void Start () {
-		flag = false;
 		turnChecker = 0;
-
 		LastPinDefaultPosition = PinSet[PinSet.Length - 1].position;
-		defaultPosition  = new Vector3(0f,1f,-9.25f);
+		defaultPosition  = new Vector3(0f,1f,0f);
+		displayText.text = "";
+		for (int i = 0; i < 10; i++) {
+			PinPosition[i] = PinSet[i].position;
+			PinRotation[i] = PinSet[i].rotation;
+
+				}
 	}
 	
 	// Update is called once per frame
@@ -33,27 +36,23 @@ public class Ball : MonoBehaviour {
 	{
 		//Rigidbody rigidbody = GetComponent<Rigidbody> ();
 
-		if(Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 1.25f)
+		if((Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 1.25f)))
 
-		   )
 		{
-			displayText.text = "Game Over";
+//			displayText.text = "Game Over";
 			transform.position = defaultPosition;
 			rigidbody.velocity = Vector3.zero;
 			rigidbody.angularVelocity = Vector3.zero;
-			flag = false;
+			for (int i = 0; i < 10; i++) {
+				PinSet[i].position = PinPosition[i];
+				PinSet[i].rotation = PinRotation[i];
+				PinSet[i].rigidbody.velocity = Vector3.zero;
+				PinSet[i].rigidbody.angularVelocity = Vector3.zero;
+
+			}
+
 		}
-		//		if(turnChecker == 1)
-		//		{
-		//		
-		//			for(var i = 0; i<10;i++)
-		//			{
-		//				if(PinSet[i].transform.Rotate)
-		//			
-		//			}
-		//		
-		//		
-		//		}
+
 	}
 
 
@@ -102,9 +101,8 @@ public class Ball : MonoBehaviour {
 		}
 
 		if(velocity.y > 10)
-		rigidbody.AddForce(new Vector3(velocity.x,0,velocity.y) * 40.0f);
+		rigidbody.AddForce(new Vector3(velocity.x,0,velocity.y) * 30.0f);
 
-		flag = true;
 		
 		turnChecker++;
 		

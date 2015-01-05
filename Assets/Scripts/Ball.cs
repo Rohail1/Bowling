@@ -9,19 +9,17 @@ public class Ball : MonoBehaviour {
 	public   Transform[] PinSet = new Transform[10];
 	private Vector3[] PinPosition = new Vector3[10];
 	private Quaternion[]  PinRotation = new Quaternion[10];
-	private int turnChecker;
 	private Vector3 defaultPosition;
 	private Vector3 LastPinDefaultPosition;
-
 	public Camera cam1,cam2;
 	private int currentTurn = 0;
 	int totalScore = 0;
+	int FinalScore = 0;
+	int NumberOfGames = 0;
 	Vector3 defaultCameraPosition;
 	// Use this for initialization
 	void Start () {
 		defaultCameraPosition = cam1.transform.position;
-
-		turnChecker = 0;
 		LastPinDefaultPosition = PinSet[PinSet.Length - 1].position;
 		defaultPosition  = new Vector3(0f,1f,0f);
 		displayText.text = "";
@@ -32,6 +30,7 @@ public class Ball : MonoBehaviour {
 				}
 
 		cam2.enabled = false;
+		NumberOfGames = 0;
 	}
 	
 	// Update is called once per frame
@@ -46,34 +45,31 @@ public class Ball : MonoBehaviour {
 		cam2.enabled = Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * .65f);
 		cam1.enabled = !cam2.enabled;
 
-		if (transform.rigidbody.velocity.magnitude > 10 && cam1.enabled) {
+		if (transform.rigidbody.velocity.magnitude > 2 && cam1.enabled) {
 			if(Vector3.Distance(cam1.transform.position ,transform.position) > 5){
 				cam1.transform.position = new Vector3(cam1.transform.position.x,cam1.transform.position.y,transform.position.z - 5);
 			}
 				}
 
-		if((Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * .25f)
+		if((Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 0.5f)
 		     &&
-		     transform.rigidbody.velocity.magnitude < .75f) || 
-
-
-		   (Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 1.5f)))
+		     transform.rigidbody.velocity.magnitude < .25f) || 
+		   (Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 2.5f)))
 
 		{
-//			
-
 			reset();
-			//StartCoroutine("CallReset");
-
 		}
+
+		if (NumberOfGames >= 5) {
+			Debug.Log(" Yo yo");
+				}
 
 	}
 
 	IEnumerator CallReset(){
 
-		yield return new WaitForSeconds (2);
+		yield return new  WaitForSeconds (2);
 
-		reset ();
 
 		yield return null;
 	}
@@ -82,8 +78,6 @@ public class Ball : MonoBehaviour {
 	Vector2 previousPosition;
 	void reset()
 	{
-//		displayText.text = "Game Over";
-
 		transform.position = defaultPosition;
 		cam1.transform.position = defaultCameraPosition;
 		
@@ -95,29 +89,37 @@ public class Ball : MonoBehaviour {
 
 						if (score == PinPosition.Length ) {
 								Debug.Log ("Strike 20");
+								score = 20;
+								FinalScore += score;	
+								Debug.Log (FinalScore);
 								ResetAll ();
 
 						} else {
 								totalScore = score;
+								FinalScore += totalScore;
+								Debug.Log (totalScore);
 								currentTurn++;
 						}
 				} else if (currentTurn == 1) {
 			if(score + totalScore == PinPosition.Length) {
 				Debug.Log("Spare 14");
+				FinalScore += (score+4);
+				Debug.Log(FinalScore);
 
 			}else {
 				Debug.Log("Score " + (totalScore + score));
+				totalScore += score;
+				FinalScore += totalScore;
+				Debug.Log(FinalScore);
 			}
 			ResetAll ();
-				}
-
-
-
+				
+			}
 		}
 
 	void ResetAll(){
 			currentTurn = 0;
-		
+			NumberOfGames++;
 		for (int i = 0; i < 10; i++) {
 			PinSet[i].position = PinPosition[i];
 			PinSet[i].rotation = PinRotation[i];
@@ -140,16 +142,13 @@ public class Ball : MonoBehaviour {
 			if(!PinSet[i].transform.renderer.enabled)
 				continue;
 
-			if((Mathf.Abs(cuurentRotation.x - defaultRotation.x) > 5 && Mathf.Abs(cuurentRotation.x - defaultRotation.x) < 355  ) ||
-			   (Mathf.Abs(cuurentRotation.y - defaultRotation.y) > 5 && Mathf.Abs(cuurentRotation.y - defaultRotation.y) < 355  ) ||
-			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 5 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 355  )
+			if((Mathf.Abs(cuurentRotation.x - defaultRotation.x) > 30 && Mathf.Abs(cuurentRotation.x - defaultRotation.x) < 330  ) ||
+			   (Mathf.Abs(cuurentRotation.y - defaultRotation.y) > 30 && Mathf.Abs(cuurentRotation.y - defaultRotation.y) < 330  ) ||
+			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 30 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 330  )
 			   ){
 				PinSet[i].transform.renderer.enabled = PinSet[i].transform.collider.enabled = false;
 				score++;
 			}
-			//PinSet[i].rotation = PinRotation[i];
-			//PinSet[i].rigidbody.velocity = Vector3.zero;
-			//PinSet[i].rigidbody.angularVelocity = Vector3.zero;
 			
 		}
 		return score;
@@ -169,18 +168,10 @@ public class Ball : MonoBehaviour {
 	void OnMouseDrag() 
 	{  
 		Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
-		//	 Debug.Log(curScreenPoint);
 		Vector2 newPosition = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
 		velocity = (newPosition - previousPosition);
-
 		previousPosition = newPosition;
-
-
-		Vector3 curPosition   = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
-
-
-
-
+		Vector3 curPosition   = Camera.main.ScreenToWorldPoint(curScreenPoint)+ offset;
 		transform.position = new Vector3(curPosition.x,defaultPosition.y, defaultPosition.z + curPosition.y);
 		
 	}
@@ -196,7 +187,6 @@ public class Ball : MonoBehaviour {
 
 		if(velocity.y > 10)
 		rigidbody.AddForce(new Vector3(velocity.x,0,velocity.y) * 30.0f);
-
 
 		
 		

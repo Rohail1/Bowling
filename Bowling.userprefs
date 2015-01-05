@@ -2,18 +2,14 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Ball.cs">
     <Files>
-      <File FileName="Assets/Scripts/Ball.cs" Line="50" Column="56" />
+      <File FileName="Assets/Scripts/Ball.cs" Line="145" Column="118" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
-            <Node name="Scripts" expanded="True">
-              <Node name="Ball.cs" selected="True" />
-            </Node>
-          </Node>
-          <Node name="Assembly-UnityScript" expanded="True">
             <Node name="Scripts" expanded="True" />
+            <Node name="Standard Assets" selected="True" />
           </Node>
         </State>
       </Pad>

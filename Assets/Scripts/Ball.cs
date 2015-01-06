@@ -3,7 +3,9 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class Ball : MonoBehaviour {
-	public Text displayText;
+	public Text displayRound;
+	public Text displayScore;
+	public Text displayFinalScore;
 	private  Vector3 screenPoint ;
 	private  Vector3 offset;
 	public   Transform[] PinSet = new Transform[10];
@@ -14,23 +16,26 @@ public class Ball : MonoBehaviour {
 	public Camera cam1,cam2;
 	private int currentTurn = 0;
 	int totalScore = 0;
-	int FinalScore = 0;
-	int NumberOfGames = 0;
+	public static int FinalScore = 0;
+	int NumberOfGames = 1;
 	Vector3 defaultCameraPosition;
 	// Use this for initialization
 	void Start () {
+
 		defaultCameraPosition = cam1.transform.position;
 		LastPinDefaultPosition = PinSet[PinSet.Length - 1].position;
 		defaultPosition  = new Vector3(0f,1f,0f);
-		displayText.text = "";
+		cam2.enabled = false;
+		NumberOfGames = 1;
+		totalScore = 0;
+		FinalScore = 0;
+		displayScore.text = displayFinalScore.text = "";
+		displayRound.text = NumberOfGames+"";
 		for (int i = 0; i < 10; i++) {
-			PinPosition[i] = PinSet[i].position;
-			PinRotation[i] = PinSet[i].rotation;
+						PinPosition [i] = PinSet [i].position;
+						PinRotation [i] = PinSet [i].rotation;
 
 				}
-
-		cam2.enabled = false;
-		NumberOfGames = 0;
 	}
 	
 	// Update is called once per frame
@@ -41,8 +46,11 @@ public class Ball : MonoBehaviour {
 	void FixedUpdate()
 	{
 		//Rigidbody rigidbody = GetComponent<Rigidbody> ();
-
-		cam2.enabled = Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * .65f);
+		
+		if (NumberOfGames > 5) {
+			Application.LoadLevel("ScoreMenu");
+		}
+		cam2.enabled = Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 0.8f);
 		cam1.enabled = !cam2.enabled;
 
 		if (transform.rigidbody.velocity.magnitude > 2 && cam1.enabled) {
@@ -54,23 +62,19 @@ public class Ball : MonoBehaviour {
 		if((Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 0.5f)
 		     &&
 		     transform.rigidbody.velocity.magnitude < .25f) || 
-		   (Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 2.5f)))
+		   (Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 4f)))
 
 		{
 			reset();
 		}
 
-		if (NumberOfGames >= 5) {
-			Debug.Log(" Yo yo");
-				}
 
 	}
 
 	IEnumerator CallReset(){
 
 		yield return new  WaitForSeconds (2);
-
-
+		reset ();
 		yield return null;
 	}
 
@@ -88,29 +92,30 @@ public class Ball : MonoBehaviour {
 		if (currentTurn == 0) {
 
 						if (score == PinPosition.Length ) {
-								Debug.Log ("Strike 20");
 								score = 20;
+								displayScore.text = score+"";
 								FinalScore += score;	
-								Debug.Log (FinalScore);
+								displayFinalScore.text = FinalScore+"";
 								ResetAll ();
 
 						} else {
 								totalScore = score;
 								FinalScore += totalScore;
-								Debug.Log (totalScore);
+								displayScore.text = score+"";
+								displayFinalScore.text = FinalScore+"";
 								currentTurn++;
 						}
 				} else if (currentTurn == 1) {
 			if(score + totalScore == PinPosition.Length) {
-				Debug.Log("Spare 14");
+				displayScore.text = (score+4)+"";
 				FinalScore += (score+4);
-				Debug.Log(FinalScore);
+				displayScore.text = FinalScore+"";
 
 			}else {
-				Debug.Log("Score " + (totalScore + score));
 				totalScore += score;
-				FinalScore += totalScore;
-				Debug.Log(FinalScore);
+				displayScore.text = score+"";
+				FinalScore += score;
+				displayFinalScore.text = FinalScore+"";
 			}
 			ResetAll ();
 				
@@ -119,7 +124,9 @@ public class Ball : MonoBehaviour {
 
 	void ResetAll(){
 			currentTurn = 0;
+			displayScore.text = 0 + "";
 			NumberOfGames++;
+			displayRound.text = NumberOfGames+"";
 		for (int i = 0; i < 10; i++) {
 			PinSet[i].position = PinPosition[i];
 			PinSet[i].rotation = PinRotation[i];
@@ -186,7 +193,7 @@ public class Ball : MonoBehaviour {
 		}
 
 		if(velocity.y > 10)
-		rigidbody.AddForce(new Vector3(velocity.x,0,velocity.y) * 30.0f);
+		rigidbody.AddForce(new Vector3(velocity.x,0,velocity.y) * 40.0f);
 
 		
 		

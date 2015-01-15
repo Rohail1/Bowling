@@ -1,13 +1,15 @@
 fileFormatVersion: 2
-guid: 4ac3d815703f64981a2f9c56a83aa243
+guid: 71390b80634614110a92d788af33db36
 ModelImporter:
   serializedVersion: 16
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: polySurface2
+    100000: Pin
+    100002: //RootNode
+    400000: Pin
+    400002: //RootNode
+    2300000: Pin
+    3300000: Pin
+    4300000: Pin
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -28,7 +30,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: .00999999978
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1

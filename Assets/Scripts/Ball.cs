@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class Ball : MonoBehaviour {
+
 	public Text displayRound;
 	public Text displayScore;
 	public Text displayFinalScore;
@@ -12,21 +13,23 @@ public class Ball : MonoBehaviour {
 	public   Transform[] PinSet = new Transform[10];
 	private Vector3[] PinPosition = new Vector3[10];
 	private Quaternion[]  PinRotation = new Quaternion[10];
+	private Vector3 defaultCameraPosition;
+	private Quaternion defaultCameraRotation;
 	private Vector3 defaultPosition;
 	private Vector3 LastPinDefaultPosition;
-	public Camera cam1,cam2;
+	public Camera cam1;
 	private int currentTurn = 0;
-	int totalScore = 0;
+	private int totalScore = 0;
 	public static int FinalScore = 0;
-	int NumberOfGames = 1;
-	Vector3 defaultCameraPosition;
+	private int NumberOfGames = 1;
+
 	// Use this for initialization
 	void Start () {
 
 		defaultCameraPosition = cam1.transform.position;
+		defaultCameraRotation = cam1.transform.rotation;
 		LastPinDefaultPosition = PinSet[PinSet.Length - 1].position;
-		defaultPosition  = new Vector3(0f,1f,0f);
-		cam2.enabled = false;
+		defaultPosition = transform.position;
 		NumberOfGames = 1;
 		totalScore = 0;
 		FinalScore = 0;
@@ -42,53 +45,50 @@ public class Ball : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+
 	}
+
+
 
 	void FixedUpdate()
 	{
-		//Rigidbody rigidbody = GetComponent<Rigidbody> ();
-
-//		if (Application.platform == RuntimePlatform.IPhonePlayer) {
-//			TouchHandle();		
-//		}
-
-		if (NumberOfGames > 5) {
-			Application.LoadLevel("ScoreMenu");
-		}
-		cam2.enabled = Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 0.8f);
-		cam1.enabled = !cam2.enabled;
-
-		if (transform.rigidbody.velocity.magnitude > 2 && cam1.enabled) {
-			if(Vector3.Distance(cam1.transform.position ,transform.position) > 5){
-				cam1.transform.position = new Vector3(cam1.transform.position.x,cam1.transform.position.y,transform.position.z - 5);
-			}
+				if (NumberOfGames > 5) {
+						Application.LoadLevel ("ScoreMenu");
 				}
 
-		if((Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 0.5f)
-		     &&
-		     transform.rigidbody.velocity.magnitude < .25f) || 
-		   (Vector3.Distance(defaultPosition,transform.position) >  Vector3.Distance(defaultPosition,LastPinDefaultPosition * 3.5f)))
+				if (transform.rigidbody.velocity.magnitude > 2 && cam1.enabled) {
 
-		{
-			reset();
+			
+						if (Vector3.Distance (cam1.transform.position, transform.position) > 5 && Vector3.Distance (cam1.transform.position, LastPinDefaultPosition) > 7) {
+								cam1.transform.position = new Vector3 (cam1.transform.position.x,
+				                                      Mathf.Lerp (defaultCameraPosition.y, defaultCameraPosition.y + 2f,
+				             Vector3.Distance (cam1.transform.position, transform.position) / Vector3.Distance (cam1.transform.position, LastPinDefaultPosition)),
+				                                      transform.position.z - 5);
+						}
+
+						cam1.enabled = true;
+
+						if ((Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 0.5f)
+		    					 &&
+								transform.rigidbody.velocity.magnitude < .25f) || 
+								(Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 3.5f))) {
+								reset ();
+						}
+
+
+				}
 		}
 
-
-	}
-
-	IEnumerator CallReset(){
-
-		yield return new  WaitForSeconds (2);
-		reset ();
-		yield return null;
-	}
 
 	Vector2 velocity = Vector2.zero;
 	Vector2 previousPosition;
+	
 	void reset()
 	{
 		transform.position = defaultPosition;
 		cam1.transform.position = defaultCameraPosition;
+		cam1.transform.rotation = defaultCameraRotation;
+
 		
 		rigidbody.velocity = Vector3.zero;
 		rigidbody.angularVelocity = Vector3.zero;
@@ -174,10 +174,8 @@ public class Ball : MonoBehaviour {
 
 	}
 
-
-
-
 	void OnMouseDrag() 
+
 	{  
 		Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
 		Vector2 newPosition = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
@@ -185,63 +183,72 @@ public class Ball : MonoBehaviour {
 		previousPosition = newPosition;
 		Vector3 curPosition   = Camera.main.ScreenToWorldPoint(curScreenPoint)+ offset;
 		transform.position = new Vector3(curPosition.x,defaultPosition.y, defaultPosition.z + curPosition.y);
-		
+
 	}
 	
+
 	void OnMouseUp()
 	{
 		if (Mathf.Abs (velocity.x) > 80) {
 			velocity = new Vector2(Mathf.Sign(velocity.x) * 80,velocity.y);
 				}
+
 		if (Mathf.Abs (velocity.y) > 80) {
 			velocity = new Vector2(velocity.x,Mathf.Sign(velocity.y) * 80);
 		}
 
 		if(velocity.y > 10)
-		rigidbody.AddForce(new Vector3(velocity.x / 6.0f,0,velocity.y) * 40.0f);
-
-		
-		
-	}
-
-	int beganCount = 0;
-	void TouchHandle()
-	{
-
-		//if (Input.touchCount == 0)
-						return;
-
-		if (Input.GetTouch (0).phase == TouchPhase.Began) {
-			screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
-			offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, screenPoint.z));
-			previousPosition = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
-			beganCount++;
-			debugText.text = beganCount.ToString();
-				}
-		if (Input.GetTouch (0).phase == TouchPhase.Moved) {
-			Vector3 curScreenPoint = new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, screenPoint.z);
-			Vector2 newPosition = new Vector2 (Input.GetTouch(0).position.x, Input.GetTouch(0).position.y);
-			velocity = (newPosition - previousPosition);
-
-			//debugText.text = newPosition.ToString() + " " + previousPosition.ToString();
-
-			previousPosition = newPosition;
-			Vector3 curPosition   = Camera.main.ScreenToWorldPoint(curScreenPoint)+ offset;
-			transform.position = new Vector3(curPosition.x,defaultPosition.y, defaultPosition.z + curPosition.y);
-
-		}
-		if (Input.GetTouch (0).phase == TouchPhase.Ended) {
-			if (Mathf.Abs (velocity.x) > 10) {
-				velocity = new Vector2(Mathf.Sign(velocity.x) * 10,velocity.y);
-			}
-			if (Mathf.Abs (velocity.y) > 80) {
-				velocity = new Vector2(velocity.x,Mathf.Sign(velocity.y) * 80);
-			}
-			
-			if(velocity.y > 10)
-				rigidbody.AddForce(new Vector3(velocity.x / 500.0f ,0,velocity.y) * 40.0f);
-
-		}
+		rigidbody.AddForce(new Vector3(velocity.x / 7f,0,velocity.y) * 40.0f);
 
 	}
-}
+
+//	int beganCount = 0;
+//	void TouchHandle()
+//	{
+//
+//			if (Input.touchCount == 0)
+//				return;
+//
+//		if (Input.GetTouch (0).phase == TouchPhase.Began && !IsTouching) {
+//						
+//						screenPoint = Camera.main.WorldToScreenPoint (gameObject.transform.position);
+//						offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint (new Vector3 (Input.GetTouch (0).position.x, Input.GetTouch (0).position.y, screenPoint.z));
+//						previousPosition = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
+//						IsTouching = true;
+//						Debug.Log ("Started");
+////						beganCount++;
+////						debugText.text = beganCount.ToString ();
+//	
+//
+//				}
+//
+//		if (Input.GetTouch (0).phase == TouchPhase.Moved) {
+//			
+//			Vector3 curScreenPoint = new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, screenPoint.z);
+//			Vector2 newPosition = new Vector2 (Input.GetTouch(0).position.x, Input.GetTouch(0).position.y);
+//			velocity = (newPosition - previousPosition);			
+//			debugText.text = newPosition.ToString() + "  " + previousPosition.ToString();
+//			previousPosition = newPosition;
+//			Vector3 curPosition   = Camera.main.ScreenToWorldPoint(curScreenPoint)+ offset;
+//			transform.position = new Vector3(curPosition.x,defaultPosition.y, defaultPosition.z + curPosition.y);
+//			Debug.Log("Move");
+//		
+//
+//		}
+//		if (Input.GetTouch (0).phase == TouchPhase.Ended) {
+//			Debug.Log("Ended");
+//			IsTouching = false;
+//			if (Mathf.Abs (velocity.x) > 80) {
+//				velocity = new Vector2(Mathf.Sign(velocity.x) * 80,velocity.y);
+//			}
+//			if (Mathf.Abs (velocity.y) > 60) {
+//				velocity = new Vector2(velocity.x,Mathf.Sign(velocity.y) * 60);
+//			}
+//			
+//			if(velocity.y > 10)
+//				rigidbody.AddForce(new Vector3(velocity.x / 6.0f ,0,velocity.y) * 40.0f);
+//			
+//		}
+//
+//
+	}

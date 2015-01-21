@@ -56,6 +56,7 @@ public class Ball : MonoBehaviour {
 						Application.LoadLevel ("ScoreMenu");
 				}
 
+
 				if (transform.rigidbody.velocity.magnitude > 2 && cam1.enabled) {
 
 			
@@ -65,18 +66,25 @@ public class Ball : MonoBehaviour {
 				             Vector3.Distance (cam1.transform.position, transform.position) / Vector3.Distance (cam1.transform.position, LastPinDefaultPosition)),
 				                                      transform.position.z - 5);
 						}
+		
 
-						cam1.enabled = true;
-
-						if ((Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 0.5f)
-		    					 &&
-								transform.rigidbody.velocity.magnitude < .25f) || 
-								(Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 3.5f))) {
-								reset ();
-						}
 
 
 				}
+
+//		if((transform.position.z > LastPinDefaultPosition.z*0.5) && (rigidbody.velocity.z < 1.6f)){
+//			reset ();
+//		}
+		float dis1 = Vector3.Distance (defaultPosition, transform.position);
+		float dis2 = Vector3.Distance (defaultPosition, LastPinDefaultPosition * 0.5f);
+
+		if (Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition )* 0.5f
+					     && rigidbody.velocity.magnitude < 2){
+								reset();
+					}
+		if(Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 3.5f)) {
+			reset ();
+		}
 		}
 
 
@@ -85,6 +93,7 @@ public class Ball : MonoBehaviour {
 	
 	void reset()
 	{
+
 		transform.position = defaultPosition;
 		cam1.transform.position = defaultCameraPosition;
 		cam1.transform.rotation = defaultCameraRotation;
@@ -128,6 +137,7 @@ public class Ball : MonoBehaviour {
 		}
 
 	void ResetAll(){
+
 			currentTurn = 0;
 			displayScore.text = 0 + "";
 			NumberOfGames++;
@@ -136,7 +146,7 @@ public class Ball : MonoBehaviour {
 			PinSet[i].position = PinPosition[i];
 			PinSet[i].rotation = PinRotation[i];
 
-			PinSet[i].transform.renderer.enabled = true;
+			PinSet[i].GetChild(0).transform.renderer.enabled = true;
 			PinSet[i].transform.collider.enabled = true;
 
 			PinSet[i].rigidbody.velocity = Vector3.zero;
@@ -151,14 +161,14 @@ public class Ball : MonoBehaviour {
 			Vector3 cuurentRotation = PinSet[i].rotation.eulerAngles;
 			Vector3 defaultRotation = PinRotation[i].eulerAngles;
 
-			if(!PinSet[i].transform.renderer.enabled)
+			if(!PinSet[i].GetChild(0).transform.renderer.enabled)
 				continue;
 
 			if((Mathf.Abs(cuurentRotation.x - defaultRotation.x) > 30 && Mathf.Abs(cuurentRotation.x - defaultRotation.x) < 330  ) ||
 			   (Mathf.Abs(cuurentRotation.y - defaultRotation.y) > 30 && Mathf.Abs(cuurentRotation.y - defaultRotation.y) < 330  ) ||
 			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 30 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 330  )
 			   ){
-				PinSet[i].transform.renderer.enabled = PinSet[i].transform.collider.enabled = false;
+				PinSet[i].GetChild(0).transform.renderer.enabled = PinSet[i].transform.collider.enabled = false;
 				score++;
 			}
 			
@@ -189,12 +199,12 @@ public class Ball : MonoBehaviour {
 
 	void OnMouseUp()
 	{
-		if (Mathf.Abs (velocity.x) > 80) {
-			velocity = new Vector2(Mathf.Sign(velocity.x) * 80,velocity.y);
+		if (Mathf.Abs (velocity.x) > 150) {
+			velocity = new Vector2(Mathf.Sign(velocity.x) * 150,velocity.y);
 				}
 
-		if (Mathf.Abs (velocity.y) > 80) {
-			velocity = new Vector2(velocity.x,Mathf.Sign(velocity.y) * 80);
+		if (Mathf.Abs (velocity.y) > 150) {
+			velocity = new Vector2(velocity.x,Mathf.Sign(velocity.y) * 150);
 		}
 
 		if(velocity.y > 10)
@@ -251,4 +261,9 @@ public class Ball : MonoBehaviour {
 //		}
 //
 //
-	}
+	 /*void OnCollisionEnter(Collision c){
+		if (c.collider.tag == "PIN") {
+			Time.timeScale = 1.5f;
+				}
+	}*/
+}

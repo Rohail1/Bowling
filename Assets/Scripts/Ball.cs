@@ -59,30 +59,23 @@ public class Ball : MonoBehaviour {
 
 				if (transform.rigidbody.velocity.magnitude > 2 && cam1.enabled) {
 
-			
-						if (Vector3.Distance (cam1.transform.position, transform.position) > 5 && Vector3.Distance (cam1.transform.position, LastPinDefaultPosition) > 7) {
+
+						if (Vector3.Distance (cam1.transform.position, transform.position) > 7 && Vector3.Distance (cam1.transform.position, LastPinDefaultPosition) > 25) {
 								cam1.transform.position = new Vector3 (cam1.transform.position.x,
 				                                      Mathf.Lerp (defaultCameraPosition.y, defaultCameraPosition.y + 2f,
 				             Vector3.Distance (cam1.transform.position, transform.position) / Vector3.Distance (cam1.transform.position, LastPinDefaultPosition)),
-				                                      transform.position.z - 5);
+				                                      transform.position.z - 7);
 						}
 		
 
 
 
 				}
-
-//		if((transform.position.z > LastPinDefaultPosition.z*0.5) && (rigidbody.velocity.z < 1.6f)){
-//			reset ();
-//		}
-		float dis1 = Vector3.Distance (defaultPosition, transform.position);
-		float dis2 = Vector3.Distance (defaultPosition, LastPinDefaultPosition * 0.5f);
-
-		if (Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition )* 0.5f
-					     && rigidbody.velocity.magnitude < 2){
+		if (Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition )* 0.2f
+					     && rigidbody.velocity.magnitude < .4f){
 								reset();
 					}
-		if(Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 3.5f)) {
+		if(Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 2.5f)) {
 			reset ();
 		}
 		}
@@ -93,7 +86,7 @@ public class Ball : MonoBehaviour {
 	
 	void reset()
 	{
-
+		this.gameObject.layer = LayerMask.NameToLayer("Default");
 		transform.position = defaultPosition;
 		cam1.transform.position = defaultCameraPosition;
 		cam1.transform.rotation = defaultCameraRotation;
@@ -199,17 +192,18 @@ public class Ball : MonoBehaviour {
 
 	void OnMouseUp()
 	{
-		if (Mathf.Abs (velocity.x) > 150) {
-			velocity = new Vector2(Mathf.Sign(velocity.x) * 150,velocity.y);
+		if (Mathf.Abs (velocity.x) > 115) {
+			velocity = new Vector2(Mathf.Sign(velocity.x) * 115,velocity.y);
 				}
 
-		if (Mathf.Abs (velocity.y) > 150) {
-			velocity = new Vector2(velocity.x,Mathf.Sign(velocity.y) * 150);
+		if (Mathf.Abs (velocity.y) > 115) {
+			velocity = new Vector2(velocity.x,Mathf.Sign(velocity.y) * 115);
 		}
 
-		if(velocity.y > 10)
-		rigidbody.AddForce(new Vector3(velocity.x / 7f,0,velocity.y) * 40.0f);
-
+		if (velocity.y > 10) {
+						rigidbody.AddForce (new Vector3 (velocity.x / 7f, 0, velocity.y) * 65.0f);
+						this.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+				}
 	}
 
 //	int beganCount = 0;

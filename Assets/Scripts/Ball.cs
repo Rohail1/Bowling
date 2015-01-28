@@ -8,9 +8,9 @@ public class Ball : MonoBehaviour {
 	public Text displayScore;
 	public Text displayFinalScore;
 	public Text debugText;
-	private  Vector3 screenPoint ;
-	private  Vector3 offset;
-	public   Transform[] PinSet = new Transform[10];
+	private Vector3 screenPoint ;
+	private Vector3 offset;
+	public  Transform[] PinSet = new Transform[10];
 	private Vector3[] PinPosition = new Vector3[10];
 	private Quaternion[]  PinRotation = new Quaternion[10];
 	private Vector3 defaultCameraPosition;
@@ -25,6 +25,7 @@ public class Ball : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
 
 		defaultCameraPosition = cam1.transform.position;
 		defaultCameraRotation = cam1.transform.rotation;
@@ -56,7 +57,6 @@ public class Ball : MonoBehaviour {
 						Application.LoadLevel ("ScoreMenu");
 				}
 
-
 				if (transform.rigidbody.velocity.magnitude > 2 && cam1.enabled) {
 
 
@@ -71,11 +71,11 @@ public class Ball : MonoBehaviour {
 
 
 				}
-		if (Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition )* 0.2f
-					     && rigidbody.velocity.magnitude < .4f){
+		if (Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition )* 0.1f
+					     && rigidbody.velocity.magnitude < .1f){
 								reset();
 					}
-		if(Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 2.5f)) {
+		if(Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition * 5f)) {
 			reset ();
 		}
 		}
@@ -131,6 +131,7 @@ public class Ball : MonoBehaviour {
 
 	void ResetAll(){
 
+			
 			currentTurn = 0;
 			displayScore.text = 0 + "";
 			NumberOfGames++;
@@ -180,7 +181,7 @@ public class Ball : MonoBehaviour {
 	void OnMouseDrag() 
 
 	{  
-		Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+		Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, /*Input.mousePosition.y*/screenPoint.y, screenPoint.z);
 		Vector2 newPosition = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
 		velocity = (newPosition - previousPosition);
 		previousPosition = newPosition;
@@ -201,7 +202,7 @@ public class Ball : MonoBehaviour {
 		}
 
 		if (velocity.y > 10) {
-						rigidbody.AddForce (new Vector3 (velocity.x / 7f, 0, velocity.y) * 65.0f);
+						rigidbody.AddForce (new Vector3 (velocity.x / 7f, 0, velocity.y) * 55.0f);
 						this.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 				}
 	}

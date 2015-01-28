@@ -3,9 +3,10 @@ using System.Collections;
 
 public class MenuScript : MonoBehaviour {
 
+
 	// Use this for initialization
 	void Start () {
-	
+
 	}
 	
 	// Update is called once per frame
@@ -15,6 +16,7 @@ public class MenuScript : MonoBehaviour {
 
 	public void LoadLevel()
 	{
+
 		Application.LoadLevel("Main");
 
 	}

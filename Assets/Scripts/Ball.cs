@@ -23,6 +23,8 @@ public class Ball : MonoBehaviour {
 	private int totalScore = 0;
 	public static int FinalScore = 0;
 	private int NumberOfGames = 1;
+	private Vector3 tempPosition;
+	private bool replayFlagChecker =false;
 
 	// Use this for initialization
 	void Start () {
@@ -82,9 +84,6 @@ public class Ball : MonoBehaviour {
 //				                                      transform.position.z - 7);
 //						}
 //		
-
-
-
 //				}
 		if (Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition )* 0.1f
 					     && rigidbody.velocity.magnitude < .1f){
@@ -99,6 +98,13 @@ public class Ball : MonoBehaviour {
 	Vector2 velocity = Vector2.zero;
 	Vector2 previousPosition;
 	
+	void replay()
+	{	replayFlagChecker = true;
+		this.transform.position = tempPosition;
+		rigidbody.AddForce (force);
+	}
+
+
 	void reset()
 	{
 		this.gameObject.layer = LayerMask.NameToLayer("Default");
@@ -109,39 +115,56 @@ public class Ball : MonoBehaviour {
 		
 		rigidbody.velocity = Vector3.zero;
 		rigidbody.angularVelocity = Vector3.zero;
+		int score = 0;
+		if (!replayFlagChecker) {
+			score = GetFallenPinsCount ();
+				}
 
-		int score = GetFallenPinsCount ();
-		if (currentTurn == 0) {
+				if (currentTurn == 0 && !replayFlagChecker) {
 
-						if (score == PinPosition.Length ) {
+						if (score == PinPosition.Length) {
 								score = 20;
-								displayScore.text = score+"";
+								displayScore.text = score + "";
 								FinalScore += score;	
-								displayFinalScore.text = FinalScore+"";
+								displayFinalScore.text = FinalScore + "";
+								ResetForReplay ();
+								replay ();				
 								ResetAll ();
+								//replay();
 
 						} else {
 								totalScore = score;
 								FinalScore += totalScore;
-								displayScore.text = score+"";
-								displayFinalScore.text = FinalScore+"";
+								displayScore.text = score + "";
+								displayFinalScore.text = FinalScore + "";
 								currentTurn++;
+								ResetForReplay ();
+								replay ();
+								
 						}
-				} else if (currentTurn == 1) {
-			if(score + totalScore == PinPosition.Length) {
-				displayScore.text = (score+4)+"";
-				FinalScore += (score+4);
-				displayScore.text = FinalScore+"";
+				} else if (currentTurn == 1 && !replayFlagChecker) {
+						if (score + totalScore == PinPosition.Length) {
+								displayScore.text = (score + 4) + "";
+								FinalScore += (score + 4);
+								displayScore.text = FinalScore + "";
+								ResetForReplay ();
+								replay ();
 
-			}else {
-				totalScore += score;
-				displayScore.text = score+"";
-				FinalScore += score;
-				displayFinalScore.text = FinalScore+"";
-			}
-			ResetAll ();
+						} else {
+								totalScore += score;
+								displayScore.text = score + "";
+								FinalScore += score;
+								displayFinalScore.text = FinalScore + "";
+						}
+						//	ResetForReplay();
+						//	replay();
+						ResetAll ();
+						//		replay();
 				
-			}
+				} else {
+			replayFlagChecker = false;		
+		}
+
 		}
 
 	void ResetAll(){
@@ -164,6 +187,17 @@ public class Ball : MonoBehaviour {
 		}
 	}
 
+	void ResetForReplay()
+	{
+		for (int i = 0; i < 10; i++) {
+			PinSet[i].transform.position = PinPosition[i];
+			PinSet[i].transform.rotation = PinRotation[i];
+			PinSet[i].rigidbody.velocity = Vector3.zero;
+			PinSet[i].rigidbody.angularVelocity = Vector3.zero;
+			PinSet[i].SetActive(true);
+		}
+	}
+
 	int GetFallenPinsCount(){
 		int score = 0;
 		for (int i = 0; i < 10; i++) {
@@ -177,8 +211,7 @@ public class Ball : MonoBehaviour {
 
 			if((Mathf.Abs(cuurentRotation.x - defaultRotation.x) > 40 && Mathf.Abs(cuurentRotation.x - defaultRotation.x) < 320  ) ||
 			   (Mathf.Abs(cuurentRotation.y - defaultRotation.y) > 40 && Mathf.Abs(cuurentRotation.y - defaultRotation.y) < 320  ) ||
-			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 40 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 320  ) //||
-//			   (PinSet[i].transform.position.y < 0)
+			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 40 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 320  ) 
 			   ){
 //				PinSet[i].GetChild(0).transform.renderer.enabled = PinSet[i].transform.collider.enabled = false;
 				PinSet[i].SetActive(false);
@@ -233,7 +266,8 @@ public class Ball : MonoBehaviour {
 		transform.position = new Vector3(curPosition.x,defaultPosition.y, defaultPosition.z + curPosition.y);
 
 	}
-	
+	Vector3 force;
+	private Quaternion ballRotation;
 
 	void OnMouseUp()
 	{
@@ -246,8 +280,14 @@ public class Ball : MonoBehaviour {
 		}
 
 		if (velocity.y > 10) {
-						rigidbody.AddForce (new Vector3 (velocity.x / 7f, 0, velocity.y) * 55.0f);
-						this.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+
+			tempPosition = this.transform.position;
+			ballRotation = this.transform.rotation;
+			force = new Vector3 (velocity.x / 7f, 0, velocity.y) * 55.0f;
+			rigidbody.AddForce (new Vector3 (velocity.x / 7f, 0, velocity.y) * 55.0f);
+			this.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+						
+						
 				}
 	}
 

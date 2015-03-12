@@ -12,7 +12,7 @@ public class BallMaterialScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
-		renderer.material = myMaterialArray [ChangingBallScript.colorIndex];
+		GetComponent<Renderer>().material = myMaterialArray [ChangingBallScript.colorIndex];
 
 	}
 }

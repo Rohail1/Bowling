@@ -11,13 +11,15 @@ public class ReplayObject {
 	}
 
 
-	public void GotoFrame(int index){
+	public bool GotoFrame(int index){
 		if(index > replayList.Count - 1)
-			return;
+			return false;
 
 
 		currentObject.position = replayList [index].Position;
 		currentObject.rotation = replayList [index].Rotation;
+
+		return true;
 	}
 
 	public int TotalFrames(){

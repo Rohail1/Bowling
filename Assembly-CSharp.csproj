@@ -51,6 +51,7 @@
      <Compile Include="Assets\Scripts\CameraRotate.cs" />
      <Compile Include="Assets\Scripts\ChangingBallScript.cs" />
      <Compile Include="Assets\Scripts\MenuScript.cs" />
+     <Compile Include="Assets\Scripts\Replay\IReplay.cs" />
      <Compile Include="Assets\Scripts\Replay\Replay.cs" />
      <Compile Include="Assets\Scripts\Replay\ReplayObject.cs" />
      <Compile Include="Assets\Scripts\Replay\ReplayObjectDO.cs" />

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class Replay {
 	public bool isRecordingStarted = false;
 	bool isPlay = false;
+
+	IReplay replayRef;
 	List<ReplayObject> ObjectsForReplay = new List<ReplayObject>();
 	float waitCount = 0;
 	float currentFrame = 0;
@@ -22,15 +24,21 @@ public class Replay {
 				}
 	}
 
+	public void AddReplayRef(IReplay replayRef){
+		this.replayRef = replayRef;
+		}
 
 	public void PlayRecording(){
 		if (ShouldWait())
 			return;
 
-		currentFrame += Time.deltaTime * 500;
+		currentFrame += Time.deltaTime * 50;
 
 		for(int i = 0; i < ObjectsForReplay.Count; i++){
-			ObjectsForReplay[i].GotoFrame((int)(currentFrame));
+			if(!ObjectsForReplay[i].GotoFrame((int)(currentFrame))){
+				EndReplay();
+				break;
+			}
 			}
 
 		}
@@ -50,9 +58,21 @@ public class Replay {
 	}
 
 
+	void EndReplay(){
+		for(int i = 0; i < ObjectsForReplay.Count; i++){
+			ObjectsForReplay[i].CurrentObject.GetComponent<Rigidbody>().isKinematic = false;
+		
+		}
+		ObjectsForReplay.Clear ();
+//		currentFrame = 0;
+		isPlay = false;
+
+		if(replayRef != null)
+		replayRef.OnReplayEnded ();
+	}
 
 	bool ShouldWait(){
-		if(waitCount < 1){
+		if(waitCount < .01f){
 			waitCount += Time.deltaTime * 500;
 			return true;
 		}
@@ -72,6 +92,7 @@ public class Replay {
 
 			for(int i = 0; i < ObjectsForReplay.Count; i++){
 				ObjectsForReplay[i].CurrentObject.GetComponent<Rigidbody>().isKinematic = true;
+				ObjectsForReplay[i].CurrentObject.gameObject.SetActive(true);
 			}
 
 

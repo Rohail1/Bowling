@@ -2,15 +2,25 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class Ball : MonoBehaviour {
+public class Ball : MonoBehaviour, IReplay {
+
+	// Public Variables
 
 	public Text displayRound;
 	public Text displayScore;
 	public Text displayFinalScore;
-	public BoxCollider boundingBox;
+	public BoxCollider boundingBoxFront;
+	public BoxCollider boundingBoxBottom;
+	public static int FinalScore = 0;
+	public  GameObject[] PinSet = new GameObject[10];
+	public Camera cam1;
+	public Camera cam2;
+
+
+	// Private Variables
+
 	private Vector3 screenPoint ;
 	private Vector3 offset;
-	public  GameObject[] PinSet = new GameObject[10];
 	private Vector3[] PinPosition = new Vector3[10];
 	private Quaternion[]  PinRotation = new Quaternion[10];
 	private Vector3 defaultCameraPosition;
@@ -18,20 +28,24 @@ public class Ball : MonoBehaviour {
 	private Vector3 defaultPosition;
 	private Vector3 LastPinDefaultPosition;
 	private bool soundFlag;
-	public Camera cam1;
-	public Camera cam2;
 	private int currentTurn = 0;
 	private int totalScore = 0;
-	public static int FinalScore = 0;
 	private int NumberOfGames = 1;
 	private Vector3 tempPosition;
 	private bool replayFlagChecker =false;
+	private bool ResetAllFlagChecker =false;
 	private Vector3 force;
+	private float pinYAxisLimit=-0.5f;
 	private Replay replayObject = new Replay();
+
+
+
 	// Use this for initialization
+
 	void Start () {
 
-		Physics.IgnoreCollision (this.GetComponent<Collider>(), boundingBox);
+		Physics.IgnoreCollision (this.GetComponent<Collider>(), boundingBoxFront);
+		Physics.IgnoreCollision (this.GetComponent<Collider>(), boundingBoxBottom);
 		defaultCameraPosition = cam1.transform.position;
 		defaultCameraRotation = cam1.transform.rotation;
 		LastPinDefaultPosition = PinSet[PinSet.Length - 1].transform.position;
@@ -49,12 +63,28 @@ public class Ball : MonoBehaviour {
 				
 		}
 		replayObject.AddObjectForReplay (this.transform);
-
+		replayObject.AddReplayRef (this);
 
 		cam1.enabled = true;
 	//	cam2.enabled = true;
 	}
-	
+
+	public void OnReplayEnded(){
+
+		if (ResetAllFlagChecker) {
+						ResetAll ();
+				
+				} else {
+			reset ();
+			RemoveFallenPinsForReplay ();
+		}
+
+
+
+		replayFlagChecker = false;
+
+
+	}
 	// Update is called once per frame
 	void Update () {
 	
@@ -78,6 +108,7 @@ public class Ball : MonoBehaviour {
 	void FixedUpdate()
 
 	{			replayObject.Update ();
+
 				
 				if (NumberOfGames > 5) {
 						Application.LoadLevel ("ScoreMenu");
@@ -94,6 +125,7 @@ public class Ball : MonoBehaviour {
 //						}
 //		
 //				}
+//		Debug.Log (GetComponent<Rigidbody> ().velocity.magnitude);
 		if (Vector3.Distance (defaultPosition, transform.position) > Vector3.Distance (defaultPosition, LastPinDefaultPosition )* 0.1f
 					     && GetComponent<Rigidbody>().velocity.magnitude < .1f && !replayFlagChecker){
 								reset();
@@ -174,7 +206,8 @@ public class Ball : MonoBehaviour {
 								replayFlagChecker = true;
 								replayObject.Play = true;
 //								replay ();	
-								ResetAll ();
+								ResetAllFlagChecker = true;						
+//									ResetAll ();
 			
 
 						} else {
@@ -204,7 +237,7 @@ public class Ball : MonoBehaviour {
 						} else {
 								totalScore += score;
 								displayScore.text = score + "";
-								FinalScore += score;
+ 								FinalScore += score;
 								displayFinalScore.text = FinalScore + "";
 //								ResetForReplay ();
 								replayFlagChecker = true;
@@ -213,33 +246,39 @@ public class Ball : MonoBehaviour {
 						}
 						//	ResetForReplay();
 						//	replay();
-						
-						ResetAll ();
+						ResetAllFlagChecker = true;
+//						ResetAll ();
 						//		replay();
 				
 				} 
 
 		}
 
+
 	void ResetAll(){
 
-			replayFlagChecker = false;
-			replayObject.isRecordingStarted = false;
+//			replayFlagChecker = false;
+//			replayObject.isRecordingStarted = false;
+			transform.position = defaultPosition;
 			currentTurn = 0;
+			Debug.Log ("Reset All");
 			displayScore.text = 0 + "";
 			NumberOfGames++;
 			displayRound.text = NumberOfGames+"";
 		for (int i = 0; i < 10; i++) {
 			PinSet[i].transform.position = PinPosition[i];
 			PinSet[i].transform.rotation = PinRotation[i];
-
+			replayObject.AddObjectForReplay(PinSet[i].transform);
 //			PinSet[i].transform.GetChild(0).transform.renderer.enabled = true;
 //			PinSet[i].transform.collider.enabled = true;
 
 			PinSet[i].GetComponent<Rigidbody>().velocity = Vector3.zero;
 			PinSet[i].GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
 			PinSet[i].SetActive(true);
+
 		}
+		replayObject.AddObjectForReplay (this.transform);
+		ResetAllFlagChecker = false;
 	}
 
 	void ResetForReplay()
@@ -267,14 +306,15 @@ public class Ball : MonoBehaviour {
 		for (int i = 0; i < 10; i++) {
 			Vector3 cuurentRotation = PinSet[i].transform.rotation.eulerAngles;
 			Vector3 defaultRotation = PinRotation[i].eulerAngles;
-
+			Vector3 currentPosition = PinSet[i].transform.position;
 
 			if(!PinSet[i].activeSelf)
 				continue;
 
 			if((Mathf.Abs(cuurentRotation.x - defaultRotation.x) > 40 && Mathf.Abs(cuurentRotation.x - defaultRotation.x) < 320  ) ||
 			   (Mathf.Abs(cuurentRotation.y - defaultRotation.y) > 40 && Mathf.Abs(cuurentRotation.y - defaultRotation.y) < 320  ) ||
-			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 40 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 320  ) 
+			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 40 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 320  ) ||
+			   currentPosition.y < pinYAxisLimit 
 			   ){
 //				PinSet[i].GetChild(0).transform.renderer.enabled = PinSet[i].transform.collider.enabled = false;
 				PinSet[i].SetActive(false);
@@ -292,16 +332,23 @@ public class Ball : MonoBehaviour {
 		for (int i = 0; i < 10; i++) {
 			Vector3 cuurentRotation = PinSet[i].transform.rotation.eulerAngles;
 			Vector3 defaultRotation = PinRotation[i].eulerAngles;
+			Vector3 currentPosition = PinSet[i].transform.position;
 
 			if(!PinSet[i].activeSelf)
 				continue;
 			
 			if((Mathf.Abs(cuurentRotation.x - defaultRotation.x) > 40 && Mathf.Abs(cuurentRotation.x - defaultRotation.x) < 320  ) ||
 			   (Mathf.Abs(cuurentRotation.y - defaultRotation.y) > 40 && Mathf.Abs(cuurentRotation.y - defaultRotation.y) < 320  ) ||
-			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 40 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 320  ) 
+			   (Mathf.Abs(cuurentRotation.z - defaultRotation.z) > 40 && Mathf.Abs(cuurentRotation.z - defaultRotation.z) < 320  ) ||
+			  	currentPosition.y < pinYAxisLimit
 			   ){
 
 				PinSet[i].SetActive(false);
+			}
+			if(PinSet[i].activeSelf)
+			{
+				replayObject.AddObjectForReplay(PinSet[i].transform);	
+				replayObject.AddObjectForReplay (this.transform);
 			}
 			
 		}
